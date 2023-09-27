@@ -10,7 +10,7 @@ steps:
 
 - task: AzureCLI@2
   inputs:
-    azureSubscription: 'virtualtour'
+    azureSubscription: '$(AzDoServiceConnectionName)'
     scriptType: 'bash'
     scriptLocation: 'inlineScript'
     inlineScript: |

@@ -1,0 +1,27 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- checkout: self
+  lfs: true
+
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'Azure subscription 1'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      # Check if it's the first build by checking the build number
+      if [ "$(Build.BuildNumber)" == "1" ]; then
+        az storage blob upload-batch -d '$web' -s $(Build.SourcesDirectory) --account-name virtualtourxyz
+      else
+        changed_files=$(git diff --name-only HEAD^ HEAD)
+        for file in $changed_files
+        do
+          az storage blob upload --account-name virtualtourxyz --container-name '$web' --type block --name $file --type text/html --file $(Build.SourcesDirectory)/$file
+        done
+      fi
+  displayName: 'Determine and Upload Files to Azure Blob'
